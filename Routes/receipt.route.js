@@ -15,6 +15,7 @@ router.post(
   [
     check("customer", "Receipt Customer field is required").not().isEmpty(),
     // check("technician", "Technician field is required").not().isEmpty(),
+    check("services", "Services field is required").not().isEmpty(),
     check("vehicle", "Vehicle name field is required").not().isEmpty(),
     check("status", "Receipt payment status field is required").not().isEmpty(),
     check("date", "Receipt date is required").not().isEmpty(),
