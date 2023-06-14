@@ -31,6 +31,12 @@ app.use(bodyParser.urlencoded({
     extended:true,
 }));
 app.use(cors());
+app.get('/check', (req, res) => {
+    return res.json({
+        message: "Everything is working fine",
+    })
+})
+// app.use('/api', adminRoute);
 app.use('/admins', adminRoute);
 app.use('/users', userRoute);
 app.use('/customers', customerRoute);
