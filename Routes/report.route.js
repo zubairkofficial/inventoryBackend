@@ -40,6 +40,16 @@ const year_end = new Date(current_year, 11, 31)
 year_end.setUTCHours(23, 59, 59, 999);
 // console.log('today', today, 'year start', year_start, 'year end', year_end);
 
+router.get('/check/:user_id', (req, res) => {
+  Receipt.find({user_id: req.params.user_id, date: {$gte: today_start, $lt: today_end}}, (error, data) => {
+    if(error){
+      return res.status(402).json({ error });
+    }else{
+      return res.json({total: data.length, data});
+    }
+  });
+});
+
 router.get("/daily/:user_id", (req, res) => {
   if (verifyToken(req, res)) {
     let receipts = [];
