@@ -22,6 +22,7 @@ router.post(
   ],
   async (req, res) => {
     if (verifyToken(req, res)) {
+      // return res.json(req.body);
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(402).json(errors);

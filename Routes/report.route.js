@@ -10,13 +10,13 @@ let Vehicle = require("../Models/Vehicle");
 const { verifyToken } = require("../Helpers");
 
 const today = new Date();
-
+const formattedDate = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
 //current day
 const today_start = new Date();
 today_start.setUTCHours(0, 0, 0, 0);
 const today_end = new Date();
 today_end.setUTCHours(23, 59, 59, 999);
-console.log('today', today, 'today start', today_start, 'today end', today_end);
+console.log('today', today, 'today start', today_start, 'today end', today_end, `FOrmatted Date::${formattedDate}`);
 
 //current Week
 const week_start = new Date(today.setDate(today.getDate() - today.getDay()));
@@ -45,7 +45,7 @@ router.get("/daily/:user_id", (req, res) => {
     let receipts = [];
     let customers = [];
     let vehicles = [];
-    Receipt.find({$or:[{user_id: req.params.user_id, date:today_start}]},(error, receipts_data) => {
+    Receipt.find({$or:[{user_id: req.params.user_id, date: new Date(formattedDate)}]},(error, receipts_data) => {
       if (error) {
         return res.status(402).json({ error: error });
       } else {
