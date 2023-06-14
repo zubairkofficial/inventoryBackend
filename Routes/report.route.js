@@ -55,7 +55,7 @@ router.get("/daily/:user_id", (req, res) => {
     let receipts = [];
     let customers = [];
     let vehicles = [];
-    Receipt.find({$or:[{user_id: req.params.user_id, date: new Date(formattedDate)}]},(error, receipts_data) => {
+    Receipt.find({$or:[{user_id: req.params.user_id, date: {$gte: today_start, $lt: today_end}}]},(error, receipts_data) => {
       if (error) {
         return res.status(402).json({ error: error });
       } else {
