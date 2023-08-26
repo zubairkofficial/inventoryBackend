@@ -8,8 +8,14 @@ const { verifyToken } = require('../Helpers');
 
 router.post('/add', [
     check('service_name', "Service name field is required").not().isEmpty(),
-    check('price').notEmpty().isFloat({min: 0.01}).withMessage('Price must be a number greater than 0.'),
     check('tax', "Select tax status of service").not().isEmpty(),
+    (req, res, next) => {
+        if (req.body.price) {
+            check('price').notEmpty().isFloat({min: 0.01}).withMessage('Price must be a number greater than 0.')(req, res, next);
+        }else{
+            next();
+        }
+    }
 ], async (req, res) => {
     if(verifyToken(req, res)){
         const errors = validationResult(req);

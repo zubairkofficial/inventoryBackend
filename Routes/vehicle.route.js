@@ -7,7 +7,7 @@ let Vehicle = require('../Models/Vehicle');
 const { verifyToken } = require('../Helpers');
 
 router.post('/add', [
-    check('vin_number', "Vin Number field is required").not().isEmpty(),
+    // check('vin_number', "Vin Number field is required").not().isEmpty(),
     check('year', "Year field is required").not().isEmpty(),
     check('name', "Vehicle Make is required").not().isEmpty(),
     check('model', "Model is required").not().isEmpty(),

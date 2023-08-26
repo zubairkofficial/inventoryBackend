@@ -50,11 +50,13 @@ router.get('/check/:user_id', (req, res) => {
   });
 });
 
-router.get("/daily/:user_id", (req, res) => {
+router.get("/daily/:current_date/:user_id", (req, res) => {
   if (verifyToken(req, res)) {
     let receipts = [];
     let customers = [];
     let vehicles = [];
+    let currentDate = new Date();
+    console.log(req.params.current_date);
     Receipt.find({$or:[{user_id: req.params.user_id, date: {$gte: today_start, $lt: today_end}}]},(error, receipts_data) => {
       if (error) {
         return res.status(402).json({ error: error });

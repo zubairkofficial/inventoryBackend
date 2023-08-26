@@ -26,6 +26,7 @@ mongoose.connect('mongodb+srv://inventory:inventory123@inventorycluster.ai2teve.
 });
 
 const app = express();
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended:true,

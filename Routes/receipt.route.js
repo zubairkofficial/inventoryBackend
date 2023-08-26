@@ -14,11 +14,17 @@ router.post(
   "/add",
   [
     check("customer", "Receipt Customer field is required").not().isEmpty(),
-    // check("technician", "Technician field is required").not().isEmpty(),
-    check("services", "Services field is required").not().isEmpty(),
+    check("technician", "Technician field is required").not().isEmpty(),
     check("vehicle", "Vehicle name field is required").not().isEmpty(),
-    check("status", "Receipt payment status field is required").not().isEmpty(),
     check("date", "Receipt date is required").not().isEmpty(),
+    (req, res, next) => {
+      if (!req.body.isDraft) {
+        check("services", "Services field is required").not().isEmpty()(req, res, next);
+        check("status", "Receipt payment status field is required").not().isEmpty()(req, res, next);
+      }else{
+        next();
+      }
+    }
   ],
   async (req, res) => {
     if (verifyToken(req, res)) {
@@ -53,6 +59,9 @@ router.post(
       const note = req.body.note;
       const isDraft = req.body.isDraft;
       const user_id = req.body.user_id;
+      const created_date = req.body.created_date;
+      const createdAt = req.body.created_date;
+      const updatedAt = req.body.created_date;
 
       const request = {
         customer,
@@ -78,11 +87,15 @@ router.post(
         paid,
         remaining,
         date,
+        created_date,
         tiresTax,
         note,
         isDraft,
-        user_id
+        user_id,
+        createdAt, 
+        updatedAt
       };
+      // return res.status(200).json({data: request});
       let tires_service = [];
       let oils_service = [];
       for (let i = 0; i < request.services.length; i++) {
@@ -103,43 +116,105 @@ router.post(
           oils_service.push(oils);
         }
       }
+      // console.log("Before Condition", request.isDraft);
+      // return res.status(200).json({message:"Before Condition"});
+      // return res.status(200).json({data: request});
       if (request.isDraft == 0) {
-        Receipt.create(request, async (error, data) => {
-          if (error) {
+        Receipt.create(request)
+          .then(async (data) => {
+            try {
+              if (tires_service.length !== 0 && oils_service.length !== 0) {
+                await Promise.all([
+                  ...tires_service.map(async (tire) => {
+                    await Tire.findOneAndUpdate(
+                      { _id: tire._id },
+                      { $inc: { quantity: -parseInt(tire.quantity) } }
+                    );
+                  }),
+                  ...oils_service.map(async (oil) => {
+                    await Oil.findOneAndUpdate(
+                      { _id: oil._id },
+                      { $inc: { quantity: -oil.quantity } }
+                    );
+                  }),
+                ]);
+              } else if (oils_service.length !== 0 && tires_service.length === 0) {
+                await Promise.all(
+                  oils_service.map(async (oil) => {
+                    await Oil.findByIdAndUpdate(
+                      { _id: oil._id },
+                      { $inc: { quantity: -oil.quantity } }
+                    );
+                  })
+                );
+              } else if (oils_service.length === 0 && tires_service.length !== 0) {
+                await Promise.all(
+                  tires_service.map(async (tire) => {
+                    await Tire.findOneAndUpdate(
+                      { _id: tire._id },
+                      { $inc: { quantity: -parseInt(tire.quantity) } }
+                    );
+                  })
+                );
+              }
+              // Send a single response to the client
+              return res.status(200).json(data);
+            } catch (err) {
+              console.error(err);
+              return res.status(500).json({ error: "An error occurred while processing the request." });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
             return res.status(402).json({ error: error });
-          } else {
-            if (tires_service.length != 0 && oils_service != 0) {
-              for (let i = 0; i < tires_service.length; i++) {
-                Tire.findOneAndUpdate({_id: tires_service[i]._id}, {$inc:{'quantity' : -(parseInt(tires_service[i].quantity))}});
-              }
-  
-                for (let j = 0; j < oils_service.length; j++) {
-                  Oil.findOneAndUpdate({_id: oils_service[j]._id}, {$inc:{'quantity' : -(oils_service[j].quantity)}});
-                }
-  
-                return res.status(200).json(data);
-            }
-            else if(oils_service.length != 0 && tires_service.length == 0){
-              for(const oils in oils_service){
-                Oil.findByIdAndUpdate({_id: oils._id}, {$inc:{'quantity' : -(oils.quantity)}});
-              }
-  
-              return res.status(200).json(data);
-            }
-            else if(oils_service.length == 0 && tires_service.length != 0){
-              await Promise.all(tires_service.map(tire => {
-                return Tire.findOneAndUpdate({_id: tire._id}, {$inc:{'quantity' : -(parseInt(tire.quantity))}});
-              }));
-  
-              return res.status(200).json(data);
-            }
-            else {
-              return res.status(200).json(data);
-            }
-            
-          }
-        });
+          });
+        // Receipt.create(request, async (error, data) => {
+        //   if (error) {
+        //     return res.status(402).json({ error: error });
+        //   }
+        
+        //   try {
+        //     if (tires_service.length !== 0 && oils_service.length !== 0) {
+        //       for (let i = 0; i < tires_service.length; i++) {
+        //         await Tire.findOneAndUpdate(
+        //           { _id: tires_service[i]._id },
+        //           { $inc: { quantity: -parseInt(tires_service[i].quantity) } }
+        //         );
+        //       }
+        
+        //       for (let j = 0; j < oils_service.length; j++) {
+        //         await Oil.findOneAndUpdate(
+        //           { _id: oils_service[j]._id },
+        //           { $inc: { quantity: -oils_service[j].quantity } }
+        //         );
+        //       }
+        //     } else if (oils_service.length !== 0 && tires_service.length === 0) {
+        //       for (const oils of oils_service) {
+        //         await Oil.findByIdAndUpdate(
+        //           { _id: oils._id },
+        //           { $inc: { quantity: -oils.quantity } }
+        //         );
+        //       }
+        //     } else if (oils_service.length === 0 && tires_service.length !== 0) {
+        //       await Promise.all(
+        //         tires_service.map(async (tire) => {
+        //           await Tire.findOneAndUpdate(
+        //             { _id: tire._id },
+        //             { $inc: { quantity: -parseInt(tire.quantity) } }
+        //           );
+        //         })
+        //       );
+        //     }
+        //     // Send the response after all operations are complete
+        //     return res.status(200).json(data);
+        //   } catch (err) {
+        //     console.error(err);
+        //     return res.status(500).json({ error: "An error occurred while processing the request." });
+        //   }
+        // });
       } else {
+        // console.log("Not is draft");
+        // return res.status(200).json({message:"Not Is Draft"});
         Receipt.create(request, async (error, data) => {
           if (error) {
             return res.status(402).json({ error: error });
@@ -176,6 +251,8 @@ router.post(
           }
         });
       }
+
+      // return res.status(200).json({message:"After Condition"});
       
 
 

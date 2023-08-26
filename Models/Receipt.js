@@ -68,7 +68,7 @@ const oilSchema = new Schema({
     },
     status:{
         type:String,
-        required: true,
+        // required: true,
     },
     paymentType:{
         type:String,
@@ -83,7 +83,11 @@ const oilSchema = new Schema({
         default:0
     },
     date:{
-        type:Date,
+        type:String,
+        required:true,
+    },
+    created_date:{
+        type:String,
         required:true,
     },
     payments:{
@@ -91,8 +95,8 @@ const oilSchema = new Schema({
         default:null,
     },
     technician:{
-        type:Object,
-        // required: true,
+        type:Array,
+        required: true,
     },
     tiresTax:{
         type:Number,

@@ -9,7 +9,13 @@ const { verifyToken } = require('../Helpers');
 
 router.post('/add', [
     check('name', "Employee name field is required").not().isEmpty(),
-    check('phone').not().isEmpty().withMessage("Employee phone field is required").isNumeric({min: 10}).withMessage("Phone must be valid"),
+    (req, res, next) => {
+        console.log(req.body);
+        if (req.body.phone) {
+          check('phone').not().isEmpty().withMessage("Employee phone field is required").isNumeric({min: 10}).withMessage("Phone must be valid")(req, res, next);
+        }
+        next();
+    }
     
 ], async (req, res) => {
     if(verifyToken(req, res)){
