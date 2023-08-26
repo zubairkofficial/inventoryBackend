@@ -9,13 +9,6 @@ const { verifyToken } = require('../Helpers');
 router.post('/add', [
     check('service_name', "Service name field is required").not().isEmpty(),
     check('tax', "Select tax status of service").not().isEmpty(),
-    (req, res, next) => {
-        if (req.body.price) {
-            check('price').notEmpty().isFloat({min: 0.01}).withMessage('Price must be a number greater than 0.')(req, res, next);
-        }else{
-            next();
-        }
-    }
 ], async (req, res) => {
     if(verifyToken(req, res)){
         const errors = validationResult(req);
@@ -27,8 +20,9 @@ router.post('/add', [
         const price = req.body.price;
         const tax = req.body.tax;
         const user_id = req.body.user_id;
+        const date = req.body.date;
         
-        const request = {service_name, description, price, tax, user_id};
+        const request = {service_name, description, price, tax, user_id, date};
     
         Service.create(request, (error, data) => {
             if(error){

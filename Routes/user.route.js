@@ -1,6 +1,8 @@
 let mongoose = require("mongoose");
 let express = require("express");
 let router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const { check, validationResult } = require("express-validator");
 let bcrypt = require("bcryptjs");
 let jwt = require("jsonwebtoken");
@@ -10,6 +12,16 @@ let Permisson = require("../Models/Permission");
 const Helpers = require("../Helpers");
 const { verifyToken } = require("../Helpers");
 const Permission = require("../Models/Permission");
+
+// Set up multer for handling file uploads
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage });
 
 router.post(
   "/register-user",
@@ -179,6 +191,7 @@ router.post(
         if (error) {
           return res.status(402).json({ error: error });
         } else {
+          console.log(data);
           return res
             .status(200)
             .json({ message: "Password updated successfully" });
@@ -189,5 +202,16 @@ router.post(
     }
   }
 );
+
+router.post('/upload', upload.single("image"), (req, res) => {
+  let request = { profile: req.file.filename };
+  User.findByIdAndUpdate(req.body.user_id, request, (error, data) => {
+    if(error){
+      return res.status(402).json({error: error});
+    }else{
+      return res.status(200).json({message: "Profile picture updated successfully", user: data});
+    }
+  });
+});
 
 module.exports = router;

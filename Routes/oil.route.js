@@ -28,8 +28,9 @@ router.post('/add', [
         const pricePerQuartz = req.body.pricePerQuartz;
         const pricePerVehicle = req.body.pricePerVehicle;
         const user_id = req.body.user_id;
+        const date = req.body.date;
         
-        const request = {name, brand, type, quantity, pricePerQuartz, pricePerVehicle, user_id};
+        const request = {name, brand, type, quantity, pricePerQuartz, pricePerVehicle, user_id, date};
     
         Oil.create(request, (error, data) => {
             if(error){

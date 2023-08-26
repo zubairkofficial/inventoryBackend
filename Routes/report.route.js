@@ -55,21 +55,19 @@ router.get("/daily/:current_date/:user_id", (req, res) => {
     let receipts = [];
     let customers = [];
     let vehicles = [];
-    let currentDate = new Date();
-    console.log(req.params.current_date);
-    Receipt.find({$or:[{user_id: req.params.user_id, date: {$gte: today_start, $lt: today_end}}]},(error, receipts_data) => {
+    Receipt.find({$or:[{user_id: req.params.user_id, date: req.params.current_date}]},(error, receipts_data) => {
       if (error) {
         return res.status(402).json({ error: error });
       } else {
         receipts = receipts_data;
 
-        Customer.find({$or:[{user_id: req.params.user_id, createdAt:{$gte: today_start, $lt: today_end}}]},(error, customers_data) => {
+        Customer.find({$or:[{user_id: req.params.user_id, date:req.params.current_date}]},(error, customers_data) => {
           if (error) {
             return res.status(402).json({ error: error });
           } else {
             customers = customers_data;
 
-            Vehicle.find({$or:[{user_id: req.params.user_id, createdAt:{$gte: today_start, $lt: today_end}}]},(error, vehicles_data) => {
+            Vehicle.find({$or:[{user_id: req.params.user_id, date:req.params.current_date}]},(error, vehicles_data) => {
               if (error) {
                 return res.status(402).json({ error: error });
               } else {
@@ -93,12 +91,12 @@ router.get("/daily/:current_date/:user_id", (req, res) => {
 });
 
 
-router.get("/weekly/:user_id", (req, res) => {
+router.get("/weekly/:current/:week_before/:user_id", (req, res) => {
   if (verifyToken(req, res)) {
     let receipts = [];
     let customers = [];
     let vehicles = [];
-    Receipt.find({$or:[{user_id: req.params.user_id, date:{$gte: week_start, $lt: week_end}}]},(error, receipts_data) => {
+    Receipt.find({$or:[{user_id: req.params.user_id, date:{$gte: req.params.week_before, $lte: req.params.current}}]},(error, receipts_data) => {
       if (error) {
         return res.status(402).json({ error: error });
       } else {
@@ -138,7 +136,7 @@ router.get("/monthly/:user_id", (req, res) => {
     let receipts = [];
     let customers = [];
     let vehicles = [];
-    Receipt.find({$or:[{user_id: req.params.user_id, date:{$gte: month_start, $lt: month_end}}]},(error, receipts_data) => {
+    Receipt.find({$or:[{user_id: req.params.user_id, createdAt:{$gte: month_start, $lt: month_end}}]},(error, receipts_data) => {
       if (error) {
         return res.status(402).json({ error: error });
       } else {
@@ -178,7 +176,7 @@ router.get("/annually/:user_id", (req, res) => {
     let receipts = [];
     let customers = [];
     let vehicles = [];
-    Receipt.find({$or:[{user_id: req.params.user_id, date:{$gte: year_start, $lt: year_end}}]},(error, receipts_data) => {
+    Receipt.find({$or:[{user_id: req.params.user_id, createdAt:{$gte: year_start, $lt: year_end}}]},(error, receipts_data) => {
       if (error) {
         return res.status(402).json({ error: error });
       } else {

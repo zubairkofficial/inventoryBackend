@@ -1,6 +1,7 @@
 require('dot-env');
 let express = require('express');
 let mongoose = require('mongoose');
+const path = require('path');
 let cors = require('cors');
 let bodyParser = require('body-parser');
 
@@ -37,6 +38,7 @@ app.get('/check', (req, res) => {
         message: "Everything is working fine",
     })
 })
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // app.use('/api', adminRoute);
 app.use('/admins', adminRoute);
 app.use('/users', userRoute);

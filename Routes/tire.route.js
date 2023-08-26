@@ -24,8 +24,9 @@ router.post('/add', [
         const price = req.body.price;
         const quality = req.body.quality;
         const user_id = req.body.user_id;
+        const date = req.body.date;
         
-        const request = {brand, size, quantity, quality, price, user_id};
+        const request = {brand, size, quantity, quality, price, user_id, date};
     
         Tire.create(request, (error, data) => {
             if(error){

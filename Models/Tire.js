@@ -24,6 +24,9 @@ const tireSchema = new Schema({
     },
     user_id:{
         type:String,
+    },
+    date:{
+        type:String,
     }
 },{
     timestamps:true,

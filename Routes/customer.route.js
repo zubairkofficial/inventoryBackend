@@ -28,8 +28,9 @@ router.post('/add', [
         const taxValue = req.body.taxValue;
         const user_id = req.body.user_id;
         const company_name = req.body.company_name;
+        const date = req.body.date;
     
-        const request = {name, email, phone, address, tax, taxValue, user_id, company_name};
+        const request = {name, email, phone, address, tax, taxValue, user_id, company_name, date};
     
         Customer.create(request, (error, data) => {
             if(error){
