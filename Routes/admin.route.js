@@ -213,4 +213,38 @@ router.post(
   }
 );
 
+router.get(`/activate/user/:user_id`, (req, res) => {
+  if (verifyToken(req, res)) {
+    let request = {
+      active: true,
+    }
+    User.findByIdAndUpdate(req.params.user_id, request, (error, data) => {
+      if(error){
+        return res.status(402).json({error: error});
+      }else{
+        return res.status(200).json({message: "User activated successfully", data});
+      }
+    });
+  } else {
+    return res.status(402).json({ error: "Unauthenticated" });
+  }
+});
+
+router.get(`/deactivate/user/:user_id`, (req, res) => {
+  if (verifyToken(req, res)) {
+    let request = {
+      active: false,
+    }
+    User.findByIdAndUpdate(req.params.user_id, request, (error, data) => {
+      if(error){
+        return res.status(402).json({error: error});
+      }else{
+        return res.status(200).json({message: "User deactivated successfully", data});
+      }
+    });
+  } else {
+    return res.status(402).json({ error: "Unauthenticated" });
+  }
+});
+
 module.exports = router;

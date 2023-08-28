@@ -71,25 +71,29 @@ router.post(
     }
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
-    if (user.user_type != 0 ) {
-      return res.status(402).json({ error: "Invalid email or password" });
-    }
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const token = jwt.sign({ user_id: user._id, email }, Helpers.tokenKey, {
-        expiresIn: "2h",
-      });
-      let permissions = null;
-      if (user.user_role != null) {
-        permissions = await Permission.find({$or:[{role_id:user.user_role._id}]});        
+    if(user.active){
+      if (user.user_type != 0 ) {
+        return res.status(402).json({ error: "Invalid email or password" });
       }
-      let data = {
-        user,
-        token,
-        permissions,
-      };
-      return res.status(200).json(data);
-    } else {
-      return res.status(402).json({ error: "Invalid email or password" });
+      if (user && (await bcrypt.compare(password, user.password))) {
+        const token = jwt.sign({ user_id: user._id, email }, Helpers.tokenKey, {
+          expiresIn: "2h",
+        });
+        let permissions = null;
+        if (user.user_role != null) {
+          permissions = await Permission.find({$or:[{role_id:user.user_role._id}]});        
+        }
+        let data = {
+          user,
+          token,
+          permissions,
+        };
+        return res.status(200).json(data);
+      } else {
+        return res.status(402).json({ error: "Invalid email or password" });
+      }
+    }else{
+      return res.status(402).json({ error: "Account deactivated" });
     }
   }
 );
