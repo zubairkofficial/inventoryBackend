@@ -19,6 +19,7 @@ const roleRoute = require('./Routes/role.route');
 const permissionRoute = require('./Routes/permission.route');
 const teamRoute = require('./Routes/team.route');
 const tabRoute = require('./Routes/tab.route');
+// const User = require('./Models/User');
 
 mongoose.connect('mongodb+srv://inventory:inventory123@inventorycluster.ai2teve.mongodb.net/db_inventory?retryWrites=true&w=majority').then(data => {
     console.log(`Conneced to Mongodb! Database name: ${data.connections[0].name}`);
@@ -54,6 +55,29 @@ app.use('/roles', roleRoute);
 app.use('/permissions', permissionRoute);
 app.use('/teams', teamRoute);
 app.use('/tabs', tabRoute);
+
+// app.get('/temp-get-all-user', (req, res)=>{
+//     User.find((error, data) => {
+//         if (error) {
+//           return res.status(402).json({ error: error });
+//         } else {
+//           return res.json(data);
+//         }
+//       });
+// })
+
+// app.get("/temp-get-profile/:id", (req, res) => {
+//     User.findById(req.params.id, (error, data) => {
+//       if (error) {
+//         return res.status(500).json({ error: "Internal Server Error" });
+//       } else if (!data) {
+//         return res.status(404).json({ error: "User not found" });
+//       } else {
+//         return res.status(200).json(data);
+//       }
+//     });
+//   });
+  
 
 // const port = process.env.PORT || 3000;
 const port = 8001;
