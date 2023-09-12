@@ -186,16 +186,13 @@ router.post(
           .status(402)
           .json({ message: "Confirm Password does not match" });
       }
-      console.log(password);
       password = await bcrypt.hash(password, 10);
-      console.log(password);
       let request = { password };
 
       User.findByIdAndUpdate(req.body._id, request, (error, data) => {
         if (error) {
           return res.status(402).json({ error: error });
         } else {
-          console.log(data);
           return res
             .status(200)
             .json({ message: "Password updated successfully" });
@@ -207,13 +204,40 @@ router.post(
   }
 );
 
+router.post('/update-invoice',[],
+async (req, res) => {
+  if (verifyToken(req, res)) {
+    const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(402).json(errors);
+      }
+
+      let request = { invoice: req.body.new_invoice };
+
+      User.findByIdAndUpdate(req.body._id, request, (error, data) => {
+        if (error) {
+          return res.status(402).json({ error: error });
+        } else {
+          return res
+            .status(200)
+            .json({ message: "Invoice updated successfully" });
+        }
+      });
+    
+  } else {
+    return res.status(402).json({ error: "Unauthenticated" });
+  }
+}
+)
+
 router.post('/upload', upload.single("image"), (req, res) => {
   let request = { profile: req.file.filename };
-  User.findByIdAndUpdate(req.body.user_id, request, (error, data) => {
-    if(error){
-      return res.status(402).json({error: error});
-    }else{
+  User.findByIdAndUpdate(req.body.user_id, request, { new: true }, (error, data) => {
+    if(!error){
       return res.status(200).json({message: "Profile picture updated successfully", user: data});
+    }
+    else{
+      return res.status(402).json({error: error});
     }
   });
 });

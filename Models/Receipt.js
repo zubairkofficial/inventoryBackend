@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const oilSchema = new Schema({
+    invoice:{
+        type: Number,
+        required: true,
+    },
     customer:{
         type:Object,
         required: true,

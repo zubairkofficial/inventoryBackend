@@ -8,31 +8,50 @@ let Oil = require('../Models/Oil');
 let Tire = require('../Models/Tire');
 
 const { verifyToken } = require("../Helpers");
+const User = require("../Models/User");
 const today = new Date();
 today.setUTCHours(0, 0, 0, 0);
 router.post(
   "/add",
   [
-    check("customer", "Receipt Customer field is required").not().isEmpty(),
-    check("technician", "Technician field is required").not().isEmpty(),
-    check("vehicle", "Vehicle name field is required").not().isEmpty(),
-    check("date", "Receipt date is required").not().isEmpty(),
+    // check("customer", "Receipt Customer field is required").not().isEmpty(),
+    // check("technician", "Technician field is required").not().isEmpty(),
+    // check("vehicle", "Vehicle name field is required").not().isEmpty(),
+    // check("date", "Receipt date is required").not().isEmpty(),
     // (req, res, next) => {
-    //   if (!req.body.isDraft) {
-    //     check("services", "Services field is required").not().isEmpty()(req, res, next);
-    //     check("status", "Receipt payment status field is required").not().isEmpty()(req, res, next);
-    //   }else{
-    //     next();
-    //   }
+      // if (!req.body.isDraft) {
+      //   check("services", "Services field is required").not().isEmpty()(req, res, next);
+      //   check("status", "Receipt payment status field is required").not().isEmpty()(req, res, next);
+      // }
+      // else{
+      //   next();
+      // }
     // }
   ],
   async (req, res) => {
     if (verifyToken(req, res)) {
-      // return res.json(req.body);
+      // return res.status(402).json(req.body);
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(402).json(errors);
       }
+      let invoiceNumber1 = 0;
+      const user = await User.findById(req.body.user_id).exec();
+      if(user){
+        invoiceNumber1 = user.invoice;
+        let updated = { invoice: invoiceNumber1 + 1 }
+        User.findByIdAndUpdate(req.body.user_id, updated, (err, res) => {
+          if(!err){
+            console.log("Updated ",updated)
+            console.log("Invoice Number 1:" ,invoiceNumber1)
+          }
+          if(err){
+            return res.status(402).json(err);
+          }
+        })
+      }
+      // return res.status(402).json({data:invoiceNumber1})
+      const invoice = invoiceNumber1;
       const customer = req.body.customer;
       const technician = req.body.technician;
       const vehicle = req.body.vehicle;
@@ -64,6 +83,7 @@ router.post(
       const updatedAt = req.body.created_date;
 
       const request = {
+        invoice,
         customer,
         technician,
         vehicle,
@@ -95,7 +115,7 @@ router.post(
         createdAt, 
         updatedAt
       };
-      // return res.status(200).json({data: request});
+      // return res.status(402).json({data: request});
       let tires_service = [];
       let oils_service = [];
       for (let i = 0; i < request.services.length; i++) {

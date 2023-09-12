@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 let userSchema = new Schema({
     name:{
-        type:String
+        type:String,
     },
     email:{
         type:String
@@ -31,6 +31,10 @@ let userSchema = new Schema({
     active:{
         type: Boolean,
         default: true,
+    },
+    invoice:{
+        type: Number,
+        default: 1000
     }
 }, {
     timestamps:true,
