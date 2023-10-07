@@ -31,6 +31,16 @@ router.post(
   async (req, res) => {
     if (verifyToken(req, res)) {
       // return res.status(402).json(req.body);
+      if (
+        req.body.status === "Partialy Paid" &&
+        parseFloat(req.body.remaining) === 0
+      ) {
+        return res.status(500).json({ error: "Status cannot be 'Partially Paid' when the remaining amount is 0." });
+      } 
+      // else {
+        // This block of code will execute if the condition is false
+        // console.log("Status is not Partially Paid or remaining is not 0.");
+      // }
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(402).json(errors);
