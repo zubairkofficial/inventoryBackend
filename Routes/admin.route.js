@@ -59,6 +59,8 @@ router.post(
     }
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
+    if(user){
+      
     if (user.user_type != 1 ) {
       return res.status(402).json({ error: "Invalid email or password" });
     }
@@ -74,6 +76,9 @@ router.post(
     } else {
       return res.status(402).json({ error: "Invalid email or password" });
     }
+    }else {
+      return res.status(402).json({ error: "User does not exist" });
+  }
   }
 );
 
